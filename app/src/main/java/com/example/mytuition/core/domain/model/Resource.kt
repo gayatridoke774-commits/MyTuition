@@ -5,5 +5,8 @@ data class Resource(
     val title: String,
     val type: ResourceType,
     val url: String?,
-    val sizeBytes: Long?
+    val sizeBytes: Long?,
+    val isFromCache: Boolean = false,
+    val subject: String? = null,
+    val batch: String? = null
 )

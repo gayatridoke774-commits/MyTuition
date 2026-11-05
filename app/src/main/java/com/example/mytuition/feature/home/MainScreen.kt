@@ -14,7 +14,7 @@ import com.example.mytuition.core.designsystem.MyTuitionColors
 import com.example.mytuition.core.designsystem.components.BottomNavItem
 import com.example.mytuition.core.designsystem.components.FloatingBottomNav
 import com.example.mytuition.feature.calendar.CalendarScreen
-import com.example.mytuition.feature.homework.HomeworkScreen
+import com.example.mytuition.feature.library.LibraryScreen
 import com.example.mytuition.feature.profile.ProfileScreen
 import com.example.mytuition.feature.subjects.SubjectsScreen
 
@@ -51,7 +51,7 @@ fun MainScreen(
                     onNavigateToSubjectDetail = onNavigateToSubjectDetail
                 )
                 1 -> CalendarScreen()
-                2 -> HomeworkScreen(onNavigateToDetail = onNavigateToHomeworkDetail)
+                2 -> LibraryScreen()
                 3 -> ProfileScreen(onLogout = onLogout)
             }
         }

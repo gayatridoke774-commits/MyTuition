@@ -1,10 +1,11 @@
-package com.example.mytuition.core.data.network
+﻿package com.example.mytuition.core.data.network
 
 import com.example.mytuition.core.data.local.TokenManager
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.runBlocking
+import okhttp3.HttpUrl
 import okhttp3.Interceptor
 import okhttp3.Response
 
@@ -17,24 +18,45 @@ object SessionEvents {
     }
 }
 
-class AuthInterceptor(private val tokenManager: TokenManager) : Interceptor {
+class AuthInterceptor(
+    private val tokenManager: TokenManager,
+    baseUrl: String = PocketBaseClient.DEFAULT_BASE_URL
+) : Interceptor {
+
+    private val trustedBaseUrl = okhttp3.HttpUrl.get(baseUrl)
+
+    private fun isTrustedRequest(url: HttpUrl): Boolean {
+        return url.scheme == trustedBaseUrl.scheme &&
+            url.host == trustedBaseUrl.host &&
+            url.port == trustedBaseUrl.port
+    }
+
     override fun intercept(chain: Interceptor.Chain): Response {
-        val token = runBlocking {
-            try {
-                tokenManager.getTokenSync()
-            } catch (_: Exception) {
-                null
+        val originalRequest = chain.request()
+        val isTrusted = isTrustedRequest(originalRequest.url)
+        val requestBuilder = originalRequest.newBuilder()
+
+        if (isTrusted) {
+            val token = runBlocking {
+                try {
+                    tokenManager.getTokenSync()
+                } catch (_: Exception) {
+                    null
+                }
+            }
+
+            if (!token.isNullOrBlank()) {
+                requestBuilder.header("Authorization", "Bearer $token")
             }
         }
-        val originalRequest = chain.request()
-        val requestBuilder = originalRequest.newBuilder()
-        if (!token.isNullOrBlank()) {
-            requestBuilder.addHeader("Authorization", "Bearer $token")
-        }
+
         val response = chain.proceed(requestBuilder.build())
 
-        // If 401 Unauthorized occurs on an authenticated request (not login endpoint)
-        if (response.code == 401 && !originalRequest.url.encodedPath.contains("auth-with-password")) {
+        if (
+            isTrusted &&
+            response.code == 401 &&
+            !originalRequest.url.encodedPath.contains("auth-with-password")
+        ) {
             runBlocking {
                 try {
                     tokenManager.clearSession()

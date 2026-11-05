@@ -1,4 +1,4 @@
-package com.example.mytuition.core.data.network
+﻿package com.example.mytuition.core.data.network
 
 import com.example.mytuition.core.data.local.TokenManager
 import com.squareup.moshi.Moshi
@@ -18,7 +18,7 @@ object PocketBaseClient {
             level = HttpLoggingInterceptor.Level.BASIC
         }
 
-        val authInterceptor = AuthInterceptor(tokenManager)
+        val authInterceptor = AuthInterceptor(tokenManager, baseUrl)
 
         val client = OkHttpClient.Builder()
             .addInterceptor(authInterceptor)

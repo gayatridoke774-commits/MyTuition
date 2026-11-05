@@ -10,6 +10,7 @@ import com.example.mytuition.core.data.repository.*
 import com.example.mytuition.core.domain.repository.AuthRepository
 import com.example.mytuition.core.domain.repository.FeeRepository
 import com.example.mytuition.core.domain.repository.HomeworkRepository
+import com.example.mytuition.core.domain.repository.LibraryRepository
 import com.example.mytuition.core.domain.repository.SubjectRepository
 import com.example.mytuition.core.domain.repository.TeacherRepository
 import com.example.mytuition.core.domain.usecase.*
@@ -31,6 +32,8 @@ object AppContainer {
         private set
     lateinit var subjectRepository: SubjectRepository
         private set
+    lateinit var libraryRepository: LibraryRepository
+        private set
     lateinit var homeRepository: PocketBaseHomeRepository
         private set
     lateinit var feeRepository: FeeRepository
@@ -50,6 +53,8 @@ object AppContainer {
         private set
     lateinit var getSubjectDetailUseCase: GetSubjectDetailUseCase
         private set
+    lateinit var getLibraryResourcesUseCase: GetLibraryResourcesUseCase
+        private set
 
     fun init(context: Context) {
         appContext = context.applicationContext
@@ -60,6 +65,7 @@ object AppContainer {
         authRepository = PocketBaseAuthRepository(pocketBaseApi, tokenManager)
         homeworkRepository = PocketBaseHomeworkRepository(pocketBaseApi, tokenManager, database)
         subjectRepository = PocketBaseSubjectRepository(pocketBaseApi, database)
+        libraryRepository = PocketBaseLibraryRepository(pocketBaseApi, database)
         homeRepository = PocketBaseHomeRepository(pocketBaseApi, tokenManager, database)
         feeRepository = PocketBaseFeeRepository(pocketBaseApi)
         profileRepository = PocketBaseProfileRepository(pocketBaseApi, tokenManager)
@@ -70,5 +76,6 @@ object AppContainer {
         markHomeworkCompleteUseCase = MarkHomeworkCompleteUseCase(homeworkRepository)
         getSubjectsUseCase = GetSubjectsUseCase(subjectRepository)
         getSubjectDetailUseCase = GetSubjectDetailUseCase(subjectRepository)
+        getLibraryResourcesUseCase = GetLibraryResourcesUseCase(libraryRepository)
     }
 }
