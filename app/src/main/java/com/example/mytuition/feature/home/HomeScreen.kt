@@ -153,23 +153,43 @@ fun HomeScreen(
                             }
                         }
 
-                        // Profile Avatar (48.dp circle, purple ring 3.dp, shadow 6.dp)
+                        // Student profile avatar: real image when available, initials otherwise.
                         Box(
                             modifier = Modifier
                                 .size(48.dp)
                                 .shadow(6.dp, CircleShape, spotColor = MyTuitionColors.PrimaryPurple.copy(alpha = 0.3f))
                                 .border(3.dp, MyTuitionColors.PrimaryPurple, CircleShape)
                                 .clip(CircleShape)
-                                .background(MyTuitionColors.PrimaryPurpleLight)
-                                .clickable { onLogout() },
+                                .background(MyTuitionColors.PrimaryPurpleLight),
                             contentAlignment = Alignment.Center
                         ) {
-                            AsyncImage(
-                                model = "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80",
-                                contentDescription = "Profile",
-                                modifier = Modifier.fillMaxSize(),
-                                contentScale = ContentScale.Crop
-                            )
+                            val avatarUrl = uiState.data.avatarUrl?.takeIf { it.isNotBlank() }
+
+                            if (avatarUrl != null) {
+                                AsyncImage(
+                                    model = avatarUrl,
+                                    contentDescription = "${uiState.studentName} profile photo",
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentScale = ContentScale.Crop
+                                )
+                            } else {
+                                val initials = uiState.studentName
+                                    .trim()
+                                    .split(Regex("\\s+"))
+                                    .filter { it.isNotBlank() }
+                                    .take(2)
+                                    .mapNotNull { it.firstOrNull()?.uppercaseChar() }
+                                    .joinToString("")
+
+                                Text(
+                                    text = initials.ifBlank { "S" },
+                                    style = MyTuitionTypography.TitleLarge.copy(
+                                        fontSize = 17.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MyTuitionColors.PrimaryPurple
+                                    )
+                                )
+                            }
                         }
                     }
 
