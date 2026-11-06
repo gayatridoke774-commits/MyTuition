@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Apps
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.rounded.Brush
 import androidx.compose.material.icons.rounded.Calculate
 import androidx.compose.material.icons.rounded.ColorLens
@@ -153,6 +154,25 @@ fun HomeScreen(
                             }
                         }
 
+                        IconButton(
+                            onClick = { viewModel.refreshHomeData() },
+                            enabled = !uiState.isRefreshing
+                        ) {
+                            if (uiState.isRefreshing) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(22.dp),
+                                    strokeWidth = 2.dp,
+                                    color = MyTuitionColors.PrimaryPurple
+                                )
+                            } else {
+                                Icon(
+                                    imageVector = Icons.Default.Refresh,
+                                    contentDescription = "Refresh dashboard",
+                                    tint = MyTuitionColors.PrimaryPurple
+                                )
+                            }
+                        }
+
                         // Student profile avatar: real image when available, initials otherwise.
                         Box(
                             modifier = Modifier
@@ -191,6 +211,17 @@ fun HomeScreen(
                                 )
                             }
                         }
+                    }
+
+                    uiState.refreshError?.let { refreshError ->
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(
+                            text = refreshError,
+                            style = MyTuitionTypography.LabelSmall.copy(
+                                color = MyTuitionColors.TextSecondary
+                            ),
+                            modifier = Modifier.fillMaxWidth()
+                        )
                     }
 
                     // Emergency Banner (Urgent announcement or cancelled session)

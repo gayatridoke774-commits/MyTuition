@@ -17,7 +17,9 @@ import kotlinx.coroutines.launch
 sealed interface HomeUiState {
     object Loading : HomeUiState
     data class Success(
-        val data: HomeData
+        val data: HomeData,
+        val isRefreshing: Boolean = false,
+        val refreshError: String? = null
     ) : HomeUiState {
         val studentName: String get() = data.studentName
         val className: String get() = data.className
@@ -59,6 +61,28 @@ class HomeViewModel(
         }
     }
 
+    fun refreshHomeData() {
+        val existingData = (_uiState.value as? HomeUiState.Success)?.data ?: return
+
+        viewModelScope.launch {
+            _uiState.value = HomeUiState.Success(
+                data = existingData,
+                isRefreshing = true
+            )
+
+            val result = homeRepository.getHomeData(currentDate)
+
+            result.onSuccess { data ->
+                _uiState.value = HomeUiState.Success(data)
+            }.onFailure { error ->
+                _uiState.value = HomeUiState.Success(
+                    data = existingData,
+                    refreshError = error.localizedMessage
+                        ?: "Unable to refresh. Showing previously loaded data."
+                )
+            }
+        }
+    }
     fun selectDate(date: String) {
         if (date == currentDate) return
         loadHomeData(date)
